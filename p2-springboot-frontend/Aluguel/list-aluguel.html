@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>316357 André - Listagem de Aluguéis</title>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">316357 André</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../cliente/list-cliente.html">Cliente</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../veiculo/list-veiculo.html">Veículo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="list-aluguel.html">Aluguel</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+
+        <h2>Listagem de Aluguéis</h2>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Data de Aluguel</th>
+                    <th scope="col">Data de Devolução</th>
+                    <th scope="col">Valor do Aluguel</th>
+                    <th scope="col">Ações</th>
+                </tr>
+            </thead>
+            <tbody id="listaAlugueis">
+                <!-- Linhas da tabela serão adicionadas dinamicamente via JavaScript -->
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- Modal de Confirmação de Cancelamento -->
+    <div class="modal fade" id="confirmacaoExclusaoModal" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmação de cancelamento</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza que deseja cancelar este aluguel?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmarExclusaoBtn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de Carregamento -->
+    <div class="modal" id="loadingModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Cancelando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <script>
+        // Função para exibir o modal de confirmação de cancelamento
+        function exibirModalConfirmacao(clienteID, carroID) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmacaoExclusaoModal'));
+            modal.show();
+
+            // Adicionando um evento ao botão de confirmar dentro do modal
+            document.getElementById('confirmarExclusaoBtn').addEventListener('click', function () {
+                // Chamando a função de cancelamento
+                cancelarAluguel(clienteID, carroID);
+
+                // Fechar o modal de confirmação
+                modal.hide();
+            });
+        }
+
+        // Função para cancelar o aluguel
+        function cancelarAluguel(clienteID, carroID) {
+            // Mostrar o indicador de carregamento
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+
+            // Fazer uma solicitação DELETE para a API
+            fetch(`http://127.0.0.1:8080/aluguel/${carroID}/${clienteID}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao cancelar aluguel');
+                    }
+                })
+                .then(data => {
+                    // Recarregar a tabela após o cancelamento
+                    listarAlugueis();
+                })
+                .catch(error => {
+                    alert('Verifique a internet ou se esse registro não está vinculado a um veículo');
+
+                    console.error('Erro ao cancelar aluguel:', error);
+
+                    loadingModal.hide();
+                })
+                .finally(() => {
+                    // Esconder o indicador de carregamento
+                    loadingModal.hide();
+                });
+        }
+
+        // Função para obter e exibir a lista de aluguéis
+        function listarAlugueis() {
+            const listaAlugueis = document.getElementById('listaAlugueis');
+
+            // Fazer uma solicitação GET para a API
+            fetch('http://127.0.0.1:8080/aluguel')
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    // Preenchendo a tabela com os dados recebidos
+                    const tableBody = document.querySelector('#listaAlugueis');
+                    tableBody.innerHTML = ''; // Limpar a tabela antes de preencher novamente
+                    data.forEach(aluguel => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${aluguel.cliente.nome} ${aluguel.cliente.cpf}</td>
+                            <td>${aluguel.dtaluguel}</td>
+                            <td>${aluguel.dtdevolucao}</td>
+                            <td>${aluguel.valoraluguel}</td>
+                            <td>
+                                <button class="btn btn-danger" onclick="exibirModalConfirmacao('${aluguel.id.cliente.idCliente}', '${aluguel.id.carro.idCarro}')">Cancelar Aluguel</button>
+                            </td>
+                        `;
+                        listaAlugueis.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Erro ao obter dados da API:', error));
+        }
+
+        // Chamar a função ao carregar a página
+        listarAlugueis();
+    </script>
+</body>
+
+</html>

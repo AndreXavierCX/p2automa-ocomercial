@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>316357 André</title>
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">316357 André</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="list-cliente.html">Cliente</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../veiculo/list-veiculo.html">Veículo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../Aluguel/list-aluguel.html">Aluguel</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal fade" id="confirmacaoExclusaoModal" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmação de Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza que deseja salvar este cliente?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmarExclusaoBtn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+
+        <div id="formularioCadastro">
+            <h2>Cadastro de Cliente</h2>
+            <form id="formCadastroCliente">
+                <div class="mb-3">
+                    <label for="nome" class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="nome" required>
+                </div>
+                <div class="mb-3">
+                    <label for="cpf" class="form-label">CPF</label>
+                    <input type="text" class="form-control" id="cpf" required>
+                </div>
+                <div class="mb-3">
+                    <label for="celular" class="form-label">Celular</label>
+                    <input type="text" class="form-control" id="celular" required>
+                </div>
+                <div class="mb-3">
+                    <label for="cnh" class="form-label">CNH</label>
+                    <input type="text" class="form-control" id="cnh" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <a type="button" class="btn btn-secondary" href="list-cliente.html">Cancelar</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Indicador de Carregamento -->
+    <div class="modal" id="loadingModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Salvando dados...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+
+    <script>
+        function exibirModalConfirmacao(idCliente) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmacaoExclusaoModal'));
+            modal.show();
+
+            // Adicionando um evento ao botão de confirmar dentro do modal
+            document.getElementById('confirmarExclusaoBtn').addEventListener('click', function () {
+                // Chamando a função de exclusão
+                enviarFormulario(idCliente);
+
+                // Fechar o modal de confirmação
+                modal.hide();
+            });
+        }
+        // Função para cancelar o cadastro e ocultar o formulário
+        function obterDadosClientePorId(id) {
+            // URL para a API
+            const apiUrl = 'http://127.0.0.1:8080/cliente';
+
+            fetch(apiUrl + `/${id}`, {
+                method: 'GET',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao obter dados do cliente');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Preencher o formulário com os dados do cliente
+                    document.getElementById('nome').value = data.nome;
+                    document.getElementById('cpf').value = data.cpf;
+                    document.getElementById('celular').value = data.celular;
+                    document.getElementById('cnh').value = data.cnh;
+                })
+                .catch(error => console.error('Erro ao obter dados do cliente:', error));
+        }
+
+        // Função para verificar se há um ID na URL
+        function verificarIdNaUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            if (id) {
+                // Se houver um ID, chamar a função para obter os dados do cliente e preencher o formulário
+                obterDadosClientePorId(id);
+            }
+        }
+
+        // Função para enviar o formulário
+        function enviarFormulario() {
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+            // Obter o ID da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            // Obter os dados do formulário
+            const nome = document.getElementById('nome').value;
+            const cpf = document.getElementById('cpf').value;
+            const celular = document.getElementById('celular').value;
+            const cnh = document.getElementById('cnh').value;
+
+            // URL para a API
+            const apiUrl = id ? `http://127.0.0.1:8080/cliente/${id}` : 'http://127.0.0.1:8080/cliente';
+
+            // Determinar o método com base na presença do ID
+            const method = id ? 'PUT' : 'POST';
+
+            fetch(apiUrl, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: id,
+                    nome: nome,
+                    cpf: cpf,
+                    celular: celular,
+                    cnh: cnh,
+                }),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Erro ao ${method === 'PUT' ? 'atualizar' : 'cadastrar'} cliente`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(`Cliente ${method === 'PUT' ? 'atualizado' : 'cadastrado'} com sucesso:`, data);
+                    window.location.href = 'list-cliente.html';
+                })
+                .catch(error => console.error(`Erro ao ${method === 'PUT' ? 'atualizar' : 'cadastrar'} cliente:`, error))
+                .finally(() => {
+                    // Limpar o formulário e ocultar novamente
+                    loadingModal.hide();
+                    document.getElementById('formCadastroCliente').reset();
+                });
+        }
+
+        document.getElementById('formCadastroCliente').addEventListener('submit', function (event) {
+            event.preventDefault();
+            exibirModalConfirmacao();
+        });
+
+        // Chamar a função de verificação ao carregar a página
+        verificarIdNaUrl();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>316357 André</title>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="../index.html">316357 André</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../cliente/list-cliente.html">Cliente</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="list-veiculo.html">Veículo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="../Aluguel/list-aluguel.html">Aluguel</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <a class="btn btn-primary mb-3" href="edit-veiculo.html">Novo</a>
+
+        <table class="table" id="veiculoTable">
+            <thead>
+                <tr>
+                    <th>Ações</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Placa</th>
+                    <th>Valor Diária</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Os dados serão preenchidos aqui via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal fade" id="confirmacaoExclusaoModal" tabindex="-1" role="dialog"
+        aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmação de Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza que deseja excluir este veículo?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmarExclusaoBtn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Indicador de Carregamento -->
+    <div class="modal" id="loadingModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Excluindo...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Aluguel de Veículo -->
+    <div class="modal fade" id="aluguelVeiculoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Aluguel de Veículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Formulário de Aluguel -->
+                    <form id="formAluguelVeiculo">
+                        <div class="mb-3">
+                            <label for="idCliente" class="form-label">ID do Cliente</label>
+                            <select name="1" class="form-select" id="idCliente" required>
+                                <!-- Options will be added dynamically via JavaScript -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dtaluguel" class="form-label">Data de Aluguel</label>
+                            <input type="date" name="2" class="form-control" id="dtaluguel" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dtdevolucao" class="form-label">Data de Devolução</label>
+                            <input type="date" name="3" class="form-control" id="dtdevolucao" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="valoraluguel" class="form-label">Valor do Aluguel</label>
+                            <input type="text" name="4" class="form-control" id="valoraluguel" required>
+                        </div>
+                        <input type="hidden" name="carroId" class="form-control" id="idCarro" required>
+                        <button type="submit" class="btn btn-primary">Salvar Aluguel</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="loadingModal2" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p>Salvando dados...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal fade" id="confirmacaoExclusaoModal" tabindex="4" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Confirmação de Exclusão</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Tem certeza que deseja alugar este veículo?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmarExclusaoBtn">Confirmar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+    <script>
+        // Função para exibir o modal de confirmação
+        function exibirModalConfirmacao(idVeiculo) {
+            const modal = new bootstrap.Modal(document.getElementById('confirmacaoExclusaoModal'));
+            modal.show();
+
+            // Adicionando um evento ao botão de confirmar dentro do modal
+            document.getElementById('confirmarExclusaoBtn').addEventListener('click', function () {
+                // Chamando a função de exclusão
+                excluirVeiculo(idVeiculo);
+
+                // Fechar o modal de confirmação
+                modal.hide();
+            });
+        }
+
+        // Função para excluir o veículo
+        function excluirVeiculo(idVeiculo) {
+            // Mostrar o indicador de carregamento
+            const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+            loadingModal.show();
+            // Fazer uma solicitação DELETE para a API
+            fetch(`http://127.0.0.1:8080/veiculo/${idVeiculo}`, {
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro ao excluir veículo');
+                    }
+                })
+                .then(data => {
+                    // Recarregar a tabela após a exclusão
+                    carregarTabelaVeiculos();
+                })
+                .catch(error => {
+                    alert('Verifique a internet ou se esse registro não está vinculado a uma locação.');
+
+                    console.error('Erro ao excluir veículo:', error);
+
+                    loadingModal.hide();
+                })
+                .finally(() => {
+                    // Esconder o indicador de carregamento
+                    loadingModal.hide();
+                });
+        }
+
+        // Função para carregar a tabela de veículos
+        function carregarTabelaVeiculos() {
+            // Fazer uma solicitação GET para a API
+            fetch('http://127.0.0.1:8080/veiculo')
+                .then(response => response.json())
+                .then(data => {
+                    // Preenchendo a tabela com os dados recebidos
+                    const tableBody = document.querySelector('#veiculoTable tbody');
+                    tableBody.innerHTML = ''; // Limpar a tabela antes de preencher novamente
+                    data.forEach(veiculo => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>
+                                <a href="edit-veiculo.html?id=${veiculo.idCarro}"><button class="btn btn-warning">Editar</button></a>
+                                <button class="btn btn-danger" onclick="exibirModalConfirmacao(${veiculo.idCarro})">Excluir</button>
+                                <button class="btn btn-primary btn-alugar" data-id="${veiculo.idCarro}">Alugar</button>
+                            </td>
+                            <td>${veiculo.marca}</td>
+                            <td>${veiculo.modelo}</td>
+                            <td>${veiculo.placa}</td>
+                            <td>${veiculo.valordiaria}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Erro ao obter dados da API:', error));
+        }
+
+        // Carregar a tabela ao carregar a página
+        document.addEventListener('DOMContentLoaded', function () {
+            carregarTabelaVeiculos();
+            ObterClientes();
+        });
+
+        function ObterClientes() {
+            fetch('http://127.0.0.1:8080/cliente')
+                .then(response => response.json())
+                .then(clientes => {
+                    const selectCliente = document.getElementById('idCliente');
+
+                    // Preencher as opções do select com os dados dos clientes
+                    clientes.forEach(cliente => {
+                        const option = document.createElement('option');
+                        option.value = cliente.idCliente;
+                        option.text = `${cliente.nome} - ${cliente.cpf}`;
+                        selectCliente.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Erro ao obter dados dos clientes:', error));
+        }
+
+
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('btn-alugar')) {
+                const idVeiculo = event.target.getAttribute('data-id');
+                abrirModalAluguel(idVeiculo);
+            }
+        });
+
+        // Função para abrir o modal de aluguel
+        function abrirModalAluguel(idVeiculo) {
+            const modal = new bootstrap.Modal(document.getElementById('aluguelVeiculoModal'));
+            // Lógica para preencher o modal de aluguel com os dados do veículo (se necessário)
+            modal.show();
+            document.getElementById('idCarro').value = idVeiculo;
+        }
+
+        // Adicione um evento de envio ao formulário de aluguel
+        document.getElementById('formAluguelVeiculo').addEventListener('submit', function (event) {
+            event.preventDefault();
+            // Lógica para enviar o formulário de aluguel (você pode adicionar essa lógica aqui)
+            var idCliente = document.getElementById('idCliente').value;
+            var dtaluguel = document.getElementById('dtaluguel').value;
+            var dtdevolucao = document.getElementById('dtdevolucao').value;
+            var valoraluguel = document.getElementById('valoraluguel').value;
+            var idCarro = document.getElementById('idCarro').value;
+
+            // Construa o objeto com os dados do formulário
+            var formData = {
+                idCliente: idCliente,
+                dtaluguel: dtaluguel,
+                dtdevolucao: dtdevolucao,
+                valoraluguel: valoraluguel,
+                idCarro: idCarro
+            };
+
+            console.log(formData);
+
+            // Faça a solicitação HTTP utilizando o método fetch
+            var URL = `http://127.0.0.1:8080/aluguel/${idCarro}/${idCliente}`;
+            fetch(URL, {
+                method: 'POST', // Ou 'PUT', 'GET', etc., dependendo da sua API
+                headers: {
+                    'Content-Type': 'application/json' // Certifique-se de ajustar o tipo de conteúdo conforme necessário
+                },
+                body: JSON.stringify(formData) // Converte o objeto para uma string JSON
+            })
+                .then(data => {
+                    // Lógica para preencher o modal de aluguel com os dados do veículo (se necessário)
+                    window.location.href = '../aluguel/list-aluguel.html';
+                    console.log('Resposta da API:', data);
+                    // Adicione aqui qualquer lógica adicional que você deseja executar após o envio bem-sucedido
+                })
+                .catch(error => {
+                    alert('Erro ao enviar a solicitação:', error);
+                    // Adicione aqui qualquer lógica adicional para lidar com erros
+                });
+            // Adicione aqui a lógica para enviar os dados do aluguel para o backend
+        });
+    </script>
+</body>
+
+</html>
